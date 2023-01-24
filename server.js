@@ -7,8 +7,10 @@ const Book = require('./models/books.js');
 const mongoose = require('mongoose');
 
 const app = express();
-app.use(cors());
 
+//middleware
+app.use(cors());
+app.use(express.json());
 
 mongoose.connect(process.env.DB_URL);
 
@@ -21,7 +23,37 @@ db.once('open', function () {
 
 const PORT = process.env.PORT || 3002;
 
+//End point to post 
+app.post('/books', postBook);
 
+async function postBook(request, response, next){
+  try {
+    console.log(request.body)
+    let createdBook = await Book.create(request.body);
+
+    response.status(200).send(createdBook);
+  } catch (error) {
+    console.log(error.message);
+    next(error);
+  }
+}
+
+//End point to delete a book, use a variable to capture the ID, must use :<variableName>
+app.delete('/books/:bookID', deleteBooks);
+
+async function deleteBooks(request, response, next){
+  try {
+    console.log(request.params);
+    console.log(request.params.bookID);
+    let id = request.params.bookID;
+    
+    await Book.findByIdAndDelete(id);
+
+    response.status(200).send('Book Deleted');
+  } catch (error) {
+    next(error);
+  }
+}
 
 app.get('/books', getBooks);
 
