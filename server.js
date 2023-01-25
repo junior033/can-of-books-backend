@@ -38,6 +38,27 @@ async function postBook(request, response, next){
   }
 }
 
+// End poiont to update/put
+app.put('/books/:bookID', updateBook);
+
+async function updateBook(request, response, next){
+  try {
+    //path parameter - id of book to update
+    // request.body - data to update the book
+    let id = request.params.bookID;
+    let data = request.body;
+
+    // findbyIdAndUpdate - 3 args: id, data, option obj {new: true, overwrite: true}
+    const updatedBook = await Book.findByIdAndUpdate(id, data, {new: true, overwrite: true})
+
+    response.status(200).send(updatedBook);
+  } catch (error) {
+    console.log(error.message);
+    next(error);
+  }
+}
+
+
 //End point to delete a book, use a variable to capture the ID, must use :<variableName>
 app.delete('/books/:bookID', deleteBooks);
 
